@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <base href="./" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="shortcut icon" href="./favicon.ico">
+    <!--    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Web site to manage keycloak" />
-    <title>Keycloak Administration UI</title>
+    <title>Κονσόλα Διαχειριστή</title>
     <style>
       body {
         margin: 0;
@@ -57,7 +58,15 @@
       </div>
     </div>
 
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <h1>Good luck with having Javascript disabled!</h1>
+      <style>
+        h1 {
+          text-align: center;
+          font-weight: 800;
+        }
+      </style>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
