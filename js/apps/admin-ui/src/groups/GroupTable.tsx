@@ -11,7 +11,7 @@ import { KeycloakDataTable } from "../components/table-toolbar/KeycloakDataTable
 import { ListEmptyState } from "../components/list-empty-state/ListEmptyState";
 import { GroupsModal } from "./GroupsModal";
 import { getLastId } from "./groupIdUtils";
-import { useSubGroups } from "./SubGroupsContext";
+// import { useSubGroups } from "./SubGroupsContext";
 import { toGroups } from "./routes/Groups";
 import { useAccess } from "../context/access/Access";
 import useToggle from "../utils/useToggle";
@@ -39,7 +39,7 @@ export const GroupTable = ({
   const [showDelete, toggleShowDelete] = useToggle();
   const [move, setMove] = useState<GroupRepresentation>();
 
-  const { currentGroup } = useSubGroups();
+  // const { currentGroup } = useSubGroups();
 
   const [key, setKey] = useState(0);
   const refresh = () => setKey(key + 1);
@@ -50,7 +50,7 @@ export const GroupTable = ({
   const id = getLastId(location.pathname);
 
   const { hasAccess } = useAccess();
-  const isManager = hasAccess("manage-users") || currentGroup()?.access?.manage;
+  // const isManager = hasAccess("manage-users") || currentGroup()?.access?.manage;
 
   const loader = async (first?: number, max?: number) => {
     const params: Record<string, string> = {
@@ -157,15 +157,17 @@ export const GroupTable = ({
                 }}
               />
             </ToolbarItem>
-            <GroupToolbar
-              toggleCreate={toggleCreateOpen}
-              toggleDelete={toggleShowDelete}
-              kebabDisabled={selectedRows!.length === 0}
-            />
+            {hasAccess("manage-realm") && (
+              <GroupToolbar
+                toggleCreate={toggleCreateOpen}
+                toggleDelete={toggleShowDelete}
+                kebabDisabled={selectedRows!.length === 0}
+              />
+            )}
           </>
         }
         actions={
-          !isManager
+          !hasAccess("manage-realm")
             ? []
             : [
                 {
@@ -222,15 +224,25 @@ export const GroupTable = ({
           },
         ]}
         emptyState={
-          <ListEmptyState
-            hasIcon={true}
-            message={t(`noGroupsInThis${id ? "SubGroup" : "Realm"}`)}
-            instructions={t(
-              `noGroupsInThis${id ? "SubGroup" : "Realm"}Instructions`
-            )}
-            primaryActionText={t("createGroup")}
-            onPrimaryAction={toggleCreateOpen}
-          />
+          hasAccess("manage-realm") ? (
+            <ListEmptyState
+              hasIcon={true}
+              message={t(`noGroupsInThis${id ? "SubGroup" : "Realm"}`)}
+              instructions={t(
+                `noGroupsInThis${id ? "SubGroup" : "Realm"}Instructions`
+              )}
+              primaryActionText={t("createGroup")}
+              onPrimaryAction={toggleCreateOpen}
+            />
+          ) : (
+            <ListEmptyState
+              hasIcon={true}
+              message={t(`noGroupsInThis${id ? "SubGroup" : "Realm"}`)}
+              instructions={t(
+                `noGroupsInThis${id ? "SubGroup" : "Realm"}Instructions`
+              )}
+            />
+          )
         }
       />
     </>

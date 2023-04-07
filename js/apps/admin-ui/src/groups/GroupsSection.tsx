@@ -41,7 +41,8 @@ import "./GroupsSection.css";
 
 export default function GroupsSection() {
   const { t } = useTranslation("groups");
-  const [activeTab, setActiveTab] = useState(0);
+  // need this for members tab to be selected when choosing a group from the sidebar
+  const [activeTab, setActiveTab] = useState(1);
 
   const { profileInfo } = useServerInfo();
 
@@ -104,16 +105,18 @@ export default function GroupsSection() {
 
   return (
     <>
-      <DeleteGroup
-        show={deleteOpen}
-        toggleDialog={toggleDeleteOpen}
-        selectedRows={[currentGroup()!]}
-        refresh={() => {
-          navigate(toGroups({ realm }));
-          refresh();
-        }}
-      />
-      {rename && (
+      {hasAccess("manage-realm") && (
+        <DeleteGroup
+          show={deleteOpen}
+          toggleDialog={toggleDeleteOpen}
+          selectedRows={[currentGroup()!]}
+          refresh={() => {
+            navigate(toGroups({ realm }));
+            refresh();
+          }}
+        />
+      )}
+      {rename && hasAccess("manage-realm") && (
         <GroupsModal
           id={id}
           rename={rename}
@@ -137,7 +140,7 @@ export default function GroupsSection() {
                     helpUrl={!id ? helpUrls.groupsUrl : ""}
                     divider={!id}
                     dropdownItems={
-                      id && canManageGroup
+                      id && canManageGroup && hasAccess("manage-realm")
                         ? [
                             <DropdownItem
                               data-testid="renameGroupAction"
@@ -171,16 +174,20 @@ export default function GroupsSection() {
                       mountOnEnter
                       unmountOnExit
                     >
-                      <Tab
-                        data-testid="groups"
-                        eventKey={0}
-                        title={<TabTitleText>{t("childGroups")}</TabTitleText>}
-                      >
-                        <GroupTable
-                          refresh={refresh}
-                          canViewDetails={canViewDetails}
-                        />
-                      </Tab>
+                      {hasAccess("manage-realm") && (
+                        <Tab
+                          data-testid="groups"
+                          eventKey={0}
+                          title={
+                            <TabTitleText>{t("childGroups")}</TabTitleText>
+                          }
+                        >
+                          <GroupTable
+                            refresh={refresh}
+                            canViewDetails={canViewDetails}
+                          />
+                        </Tab>
+                      )}
                       {canViewMembers && (
                         <Tab
                           data-testid="members"
@@ -190,16 +197,20 @@ export default function GroupsSection() {
                           <Members />
                         </Tab>
                       )}
-                      <Tab
-                        data-testid="attributes"
-                        eventKey={2}
-                        title={
-                          <TabTitleText>{t("common:attributes")}</TabTitleText>
-                        }
-                      >
-                        <GroupAttributes />
-                      </Tab>
-                      {canManageRoles && (
+                      {hasAccess("manage-realm") && (
+                        <Tab
+                          data-testid="attributes"
+                          eventKey={2}
+                          title={
+                            <TabTitleText>
+                              {t("common:attributes")}
+                            </TabTitleText>
+                          }
+                        >
+                          <GroupAttributes />
+                        </Tab>
+                      )}
+                      {canManageRoles && hasAccess("manage-realm") && (
                         <Tab
                           eventKey={3}
                           data-testid="role-mapping-tab"

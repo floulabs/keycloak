@@ -187,22 +187,34 @@ const EditUserForm = ({ user, bruteForced, refresh }: EditUserFormProps) => {
         titleKey={user.username!}
         className="kc-username-view-header"
         divider={false}
-        dropdownItems={[
-          <DropdownItem
-            key="impersonate"
-            isDisabled={!user.access?.impersonate}
-            onClick={() => toggleImpersonateDialog()}
-          >
-            {t("impersonate")}
-          </DropdownItem>,
-          <DropdownItem
-            key="delete"
-            isDisabled={!user.access?.manage}
-            onClick={() => toggleDeleteDialog()}
-          >
-            {t("common:delete")}
-          </DropdownItem>,
-        ]}
+        dropdownItems={
+          hasAccess("manage-realm")
+            ? [
+                <DropdownItem
+                  key="impersonate"
+                  isDisabled={!user.access?.impersonate}
+                  onClick={() => toggleImpersonateDialog()}
+                >
+                  {t("impersonate")}
+                </DropdownItem>,
+                <DropdownItem
+                  key="delete"
+                  isDisabled={!user.access?.manage}
+                  onClick={() => toggleDeleteDialog()}
+                >
+                  {t("common:delete")}
+                </DropdownItem>,
+              ]
+            : [
+                <DropdownItem
+                  key="impersonate"
+                  isDisabled={!user.access?.impersonate}
+                  onClick={() => toggleImpersonateDialog()}
+                >
+                  {t("impersonate")}
+                </DropdownItem>,
+              ]
+        }
         onToggle={(value) => save({ ...user, enabled: value })}
         isEnabled={user.enabled}
       />
@@ -239,14 +251,16 @@ const EditUserForm = ({ user, bruteForced, refresh }: EditUserFormProps) => {
               >
                 <UserCredentials user={user} />
               </Tab>
-              <Tab
-                data-testid="role-mapping-tab"
-                isHidden={!user.access?.mapRoles}
-                title={<TabTitleText>{t("roleMapping")}</TabTitleText>}
-                {...roleMappingTab}
-              >
-                <UserRoleMapping id={user.id!} name={user.username!} />
-              </Tab>
+              {hasAccess("manage-realm") && (
+                <Tab
+                  data-testid="role-mapping-tab"
+                  isHidden={!user.access?.mapRoles}
+                  title={<TabTitleText>{t("roleMapping")}</TabTitleText>}
+                  {...roleMappingTab}
+                >
+                  <UserRoleMapping id={user.id!} name={user.username!} />
+                </Tab>
+              )}
               {hasAccess("query-groups") && (
                 <Tab
                   data-testid="user-groups-tab"
@@ -256,13 +270,15 @@ const EditUserForm = ({ user, bruteForced, refresh }: EditUserFormProps) => {
                   <UserGroups user={user} />
                 </Tab>
               )}
-              <Tab
-                data-testid="user-consents-tab"
-                title={<TabTitleText>{t("consents")}</TabTitleText>}
-                {...consentsTab}
-              >
-                <UserConsents />
-              </Tab>
+              {hasAccess("manage-realm") && (
+                <Tab
+                  data-testid="user-consents-tab"
+                  title={<TabTitleText>{t("consents")}</TabTitleText>}
+                  {...consentsTab}
+                >
+                  <UserConsents />
+                </Tab>
+              )}
               {hasAccess("view-identity-providers") && (
                 <Tab
                   data-testid="identity-provider-links-tab"

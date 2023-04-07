@@ -245,46 +245,57 @@ export default function UsersSection() {
       </ToolbarItem>
       {!realm.bruteForceProtected ? (
         <ToolbarItem>
-          <Button
-            variant={ButtonVariant.link}
-            onClick={toggleDeleteDialog}
-            data-testid="delete-user-btn"
-            isDisabled={selectedRows.length === 0}
-          >
-            {t("deleteUser")}
-          </Button>
+          {hasAccess("manage-realm") && (
+            <Button
+              variant={ButtonVariant.link}
+              onClick={toggleDeleteDialog}
+              data-testid="delete-user-btn"
+              isDisabled={selectedRows.length === 0}
+            >
+              {t("deleteUser")}
+            </Button>
+          )}
         </ToolbarItem>
       ) : (
         <ToolbarItem>
-          <Dropdown
-            toggle={<KebabToggle onToggle={(open) => setKebabOpen(open)} />}
-            isOpen={kebabOpen}
-            isPlain
-            dropdownItems={[
-              <DropdownItem
-                key="deleteUser"
-                component="button"
-                isDisabled={selectedRows.length === 0}
-                onClick={() => {
-                  toggleDeleteDialog();
-                  setKebabOpen(false);
-                }}
-              >
-                {t("deleteUser")}
-              </DropdownItem>,
+          {hasAccess("manage-realm") ? (
+            <Dropdown
+              toggle={<KebabToggle onToggle={(open) => setKebabOpen(open)} />}
+              isOpen={kebabOpen}
+              isPlain
+              dropdownItems={[
+                <DropdownItem
+                  key="deleteUser"
+                  component="button"
+                  isDisabled={selectedRows.length === 0}
+                  onClick={() => {
+                    toggleDeleteDialog();
+                    setKebabOpen(false);
+                  }}
+                >
+                  {t("deleteUser")}
+                </DropdownItem>,
 
-              <DropdownItem
-                key="unlock"
-                component="button"
-                onClick={() => {
-                  toggleUnlockUsersDialog();
-                  setKebabOpen(false);
-                }}
-              >
-                {t("unlockAllUsers")}
-              </DropdownItem>,
-            ]}
-          />
+                <DropdownItem
+                  key="unlock"
+                  component="button"
+                  onClick={() => {
+                    toggleUnlockUsersDialog();
+                    setKebabOpen(false);
+                  }}
+                >
+                  {t("unlockAllUsers")}
+                </DropdownItem>,
+              ]}
+            />
+          ) : (
+            <Button
+              variant={ButtonVariant.link}
+              onClick={toggleUnlockUsersDialog}
+            >
+              {t("unlockAllUsers")}
+            </Button>
+          )}
         </ToolbarItem>
       )}
     </>
@@ -379,7 +390,7 @@ export default function UsersSection() {
               toolbarItem={isManager ? toolbar : undefined}
               actionResolver={(rowData: IRowData) => {
                 const user: UserRepresentation = rowData.data;
-                if (!user.access?.manage) return [];
+                if (!hasAccess("manage-realm")) return [];
 
                 return [
                   {
@@ -422,16 +433,17 @@ export default function UsersSection() {
           </Tab>
           {!profileInfo?.disabledFeatures?.includes(
             "ADMIN_FINE_GRAINED_AUTHZ"
-          ) && (
-            <Tab
-              id="permissions"
-              data-testid="permissionsTab"
-              title={<TabTitleText>{t("common:permissions")}</TabTitleText>}
-              {...permissionsTab}
-            >
-              <PermissionsTab type="users" />
-            </Tab>
-          )}
+          ) &&
+            hasAccess("manage-realm") && (
+              <Tab
+                id="permissions"
+                data-testid="permissionsTab"
+                title={<TabTitleText>{t("common:permissions")}</TabTitleText>}
+                {...permissionsTab}
+              >
+                <PermissionsTab type="users" />
+              </Tab>
+            )}
         </RoutableTabs>
       </PageSection>
     </>

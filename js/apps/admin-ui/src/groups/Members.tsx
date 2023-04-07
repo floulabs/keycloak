@@ -146,15 +146,17 @@ export const Members = () => {
                   {t("addMember")}
                 </Button>
               </ToolbarItem>
-              <ToolbarItem>
-                <Checkbox
-                  data-testid="includeSubGroupsCheck"
-                  label={t("includeSubGroups")}
-                  id="kc-include-sub-groups"
-                  isChecked={includeSubGroup}
-                  onChange={() => setIncludeSubGroup(!includeSubGroup)}
-                />
-              </ToolbarItem>
+              {hasAccess("manage-realm") && (
+                <ToolbarItem>
+                  <Checkbox
+                    data-testid="includeSubGroupsCheck"
+                    label={t("includeSubGroups")}
+                    id="kc-include-sub-groups"
+                    isChecked={includeSubGroup}
+                    onChange={() => setIncludeSubGroup(!includeSubGroup)}
+                  />
+                </ToolbarItem>
+              )}
               <ToolbarItem>
                 <Dropdown
                   toggle={
@@ -257,12 +259,16 @@ export const Members = () => {
             instructions={isManager ? t("users:emptyInstructions") : undefined}
             primaryActionText={isManager ? t("addMember") : undefined}
             onPrimaryAction={() => setAddMembers(true)}
-            secondaryActions={[
-              {
-                text: t("includeSubGroups"),
-                onClick: () => setIncludeSubGroup(true),
-              },
-            ]}
+            secondaryActions={
+              hasAccess("manage-realm")
+                ? [
+                    {
+                      text: t("includeSubGroups"),
+                      onClick: () => setIncludeSubGroup(true),
+                    },
+                  ]
+                : []
+            }
           />
         }
       />
